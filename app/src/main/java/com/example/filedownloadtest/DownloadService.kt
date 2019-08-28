@@ -31,7 +31,8 @@ class DownloadService:IntentService("Download Service") {
     }
     private fun initDownload(){
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://download.learn2crack.com/")
+            //.baseUrl("https://download.learn2crack.com/")
+            .baseUrl("http://clips.vorwaerts-gmbh.de/")
             .build()
         val retrofitInterface = retrofit.create(RetrofitInterface::class.java)
         val reques = retrofitInterface.downloadFile()
@@ -41,14 +42,13 @@ class DownloadService:IntentService("Download Service") {
             e.stackTrace
             Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
         }
-
     }
     @Throws(IOException::class)
     private fun downloadFile(body:ResponseBody) {
         var data = ByteArray(1024 * 4)
         val fileSize:Long = body.contentLength()
         val bis:InputStream = BufferedInputStream(body.byteStream(),1024 * 8)
-        val outputFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"file.zip")
+        val outputFile = File(filesDir,"big_buck_bunny.mp4")
         val output:OutputStream = FileOutputStream(outputFile)
         var total:Long = 0
         val startTime:Long = System.currentTimeMillis()

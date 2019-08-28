@@ -14,6 +14,16 @@ import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
+import android.content.pm.PackageInfo
+import androidx.core.app.ComponentActivity
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import android.R.attr.name
+import android.net.Uri
+import android.util.Log
+import java.io.File
+
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(p0: View?) {
@@ -34,6 +44,24 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.activity_main)
         btn_download.setOnClickListener(this)
         registerReceiver()
+
+        val m = packageManager
+        var s: String = packageName
+        try {
+            val p = m.getPackageInfo(s, 0)
+            s = p.applicationInfo.dataDir
+            val lifi = File("$s/files")
+            val liofFile = lifi.listFiles()
+            for (i in liofFile){
+                Log.w("yourtag", i.toString())
+            }
+
+        } catch (e: PackageManager.NameNotFoundException) {
+            Log.w("yourtag", "Error Package name not found ", e)
+        }
+        videoView2.setVideoURI(Uri.parse("$s/files/big_buck_bunny.mp4"))
+        videoView2.start()
+
     }
 
     private fun startDownload() {
