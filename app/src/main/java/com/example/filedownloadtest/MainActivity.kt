@@ -52,6 +52,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             s = p.applicationInfo.dataDir
             val lifi = File("$s/files")
             val liofFile = lifi.listFiles()
+            videoView2.setVideoURI(Uri.parse(liofFile[2].toString()))
+            videoView2.start()
             for (i in liofFile){
                 Log.w("yourtag", i.toString())
             }
@@ -59,8 +61,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         } catch (e: PackageManager.NameNotFoundException) {
             Log.w("yourtag", "Error Package name not found ", e)
         }
-        videoView2.setVideoURI(Uri.parse("$s/files/big_buck_bunny.mp4"))
-        videoView2.start()
+        //videoView2.setVideoURI(Uri.parse("$s/files/big_buck_bunny.mp4"))
+
 
     }
 

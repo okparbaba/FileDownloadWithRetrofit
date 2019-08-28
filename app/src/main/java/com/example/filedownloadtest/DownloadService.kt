@@ -12,6 +12,10 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import okhttp3.ResponseBody
 import retrofit2.Retrofit
 import java.io.*
+import java.io.File.separator
+import kotlin.math.pow
+import kotlin.math.roundToInt
+
 
 @Suppress("DEPRECATION")
 @SuppressLint("Registered")
@@ -45,42 +49,61 @@ class DownloadService:IntentService("Download Service") {
     }
     @Throws(IOException::class)
     private fun downloadFile(body:ResponseBody) {
-        var data = ByteArray(1024 * 4)
+        val data = ByteArray(1024 * 4)
         val fileSize:Long = body.contentLength()
         val bis:InputStream = BufferedInputStream(body.byteStream(),1024 * 8)
-        val outputFile = File(filesDir,"big_buck_bunny.mp4")
-        val output:OutputStream = FileOutputStream(outputFile)
-        var total:Long = 0
-        val startTime:Long = System.currentTimeMillis()
-        var timeCount = 1
-        var count: Int
-        do {
-            count = bis.read(data)
-            if (count == -1)
-                break
-
-            totalFileSize = (fileSize / (Math.pow(1024.0,2.0))).toInt()
-            val current:Double = Math.round(total/(Math.pow(1024.0,2.0))).toDouble()
-            val progress:Int = ((total * 100)/fileSize).toInt()
-            val currentTime:Long = System.currentTimeMillis() - startTime
-            val download = Download()
-            download.totalFileSize = totalFileSize
-            if (currentTime >1000 * timeCount){
-                download.currentFileSize = current.toInt()
-                download.progress = progress
-                sendNotification(download)
-                timeCount++
+        //val outputFile = File(filesDir,"big_buck_bunny.mp4")
+        val outputFile:File
+        val folder = File(
+                    (Environment.getExternalStorageDirectory()).toString() +
+            separator + "TollCulator"
+                )
+            var success = true
+            if (!folder.exists())
+            {
+            success = folder.mkdirs()
             }
-            output.write(data,0,count)
-            total += count
-        }
-        while (true)
+            if (success)
+            {
+                outputFile = File(folder,"big_buck_bunny.mp4")
+                val output:OutputStream = FileOutputStream(outputFile)
+                var total:Long = 0
+                val startTime:Long = System.currentTimeMillis()
+                var timeCount = 1
+                var count: Int
+                do {
+                    count = bis.read(data)
+                    if (count == -1)
+                        break
 
-        onDownloadComplete()
-        output.flush()
-        output.close()
-        bis.close()
-        throw IOException()
+                    totalFileSize = (fileSize / (1024.0.pow(2.0))).toInt()
+                    val current:Double = (total / (1024.0.pow(2.0))).roundToInt().toDouble()
+                    val progress:Int = ((total * 100)/fileSize).toInt()
+                    val currentTime:Long = System.currentTimeMillis() - startTime
+                    val download = Download()
+                    download.totalFileSize = totalFileSize
+                    if (currentTime >1000 * timeCount){
+                        download.currentFileSize = current.toInt()
+                        download.progress = progress
+                        sendNotification(download)
+                        timeCount++
+                    }
+                    output.write(data,0,count)
+                    total += count
+                }
+                while (true)
+
+                onDownloadComplete()
+                output.flush()
+                output.close()
+                bis.close()
+                throw IOException()
+
+            }
+            else
+            {
+             // Do something else on failure
+            }
 
     }
     private fun sendNotification(download: Download) {
